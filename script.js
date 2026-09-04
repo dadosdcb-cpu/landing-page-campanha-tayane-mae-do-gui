@@ -157,18 +157,7 @@ function closeDialog() {
 document.querySelector('.dialog-close').addEventListener('click', closeDialog);
 dialog.addEventListener('click', (event) => { if (event.target === dialog) closeDialog(); });
 
-document.querySelector('#share-whatsapp').addEventListener('click', () => {
-  window.open(`https://wa.me/?text=${encodeURIComponent(ballotText())}`, '_blank', 'noopener,noreferrer');
-});
-
-document.querySelector('#copy-ballot').addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText(ballotText());
-    showToast('Colinha copiada!');
-  } catch {
-    showToast('Não foi possível copiar automaticamente.');
-  }
-});
+const ballotPageUrl = 'https://tayanemaedogui4511.com.br/#minha-colinha';
 
 function roundedRect(context, x, y, width, height, radius) {
   context.beginPath();
@@ -185,7 +174,7 @@ async function loadCanvasImage(source) {
   });
 }
 
-async function downloadBallotImage() {
+async function createBallotImageBlob() {
   const canvas = document.createElement('canvas');
   canvas.width = 1080;
   canvas.height = 1600;
@@ -255,22 +244,67 @@ async function downloadBallotImage() {
   context.font = '700 37px "Montserrat Local", sans-serif';
   context.fillText('para Deputada Federal: 4511.', 540, 1520);
 
-  canvas.toBlob((blob) => {
-    if (!blob) {
-      showToast('Não foi possível gerar a imagem.');
-      return;
-    }
-    const downloadUrl = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = downloadUrl;
-    anchor.download = 'minha-colinha-tayane-4511.png';
-    anchor.click();
-    setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
-    showToast('Colinha salva no dispositivo!');
-  }, 'image/png');
+  return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+}
+
+function saveBallotBlob(blob) {
+  const downloadUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = downloadUrl;
+  anchor.download = 'minha-colinha-tayane-4511.png';
+  anchor.click();
+  setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+}
+
+async function downloadBallotImage() {
+  const blob = await createBallotImageBlob();
+  if (!blob) {
+    showToast('Não foi possível gerar a imagem.');
+    return;
+  }
+  saveBallotBlob(blob);
+  showToast('Imagem da colinha salva!');
 }
 
 document.querySelector('#download-ballot').addEventListener('click', downloadBallotImage);
+
+document.querySelector('#share-whatsapp').addEventListener('click', async () => {
+  const blob = await createBallotImageBlob();
+  if (!blob) {
+    showToast('Não foi possível gerar a imagem.');
+    return;
+  }
+
+  const file = new File([blob], 'minha-colinha-tayane-4511.png', { type: 'image/png' });
+  const shareText = `Minha colinha eleitoral está pronta! Monte a sua também: ${ballotPageUrl}`;
+
+  try {
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ title: 'Minha Colinha', text: shareText, files: [file] });
+      return;
+    }
+
+    saveBallotBlob(blob);
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank', 'noopener,noreferrer');
+    showToast('Imagem salva. Anexe-a na conversa do WhatsApp.');
+  } catch (error) {
+    if (error.name !== 'AbortError') showToast('Não foi possível compartilhar a imagem.');
+  }
+});
+
+document.querySelector('#copy-ballot-link').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(ballotPageUrl);
+    showToast('Link da colinha copiado!');
+  } catch {
+    showToast('Não foi possível copiar automaticamente.');
+  }
+});
+
+document.querySelector('#edit-ballot').addEventListener('click', () => {
+  closeDialog();
+  document.querySelector('#minha-colinha').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
 
 const videoShareDialog = document.querySelector('#video-share-dialog');
 const videoUrl = 'https://tayanemaedogui4511.com.br/#trajetoria';
