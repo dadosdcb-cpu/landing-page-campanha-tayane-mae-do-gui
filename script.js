@@ -291,29 +291,23 @@ document.querySelectorAll('.notice-button').forEach((button) => {
 });
 
 const campaignVideo = document.querySelector('#campaign-video');
-const videoPreviewButton = document.querySelector('#video-preview-button');
-const videoPreview = document.querySelector('#video-preview');
-campaignVideo.addEventListener('loadedmetadata', () => {
-  if (campaignVideo.currentTime === 0 && campaignVideo.duration > 1) {
-    campaignVideo.currentTime = Math.min(67, campaignVideo.duration / 2);
+campaignVideo.defaultMuted = true;
+campaignVideo.muted = true;
+
+const videoVisibilityObserver = new IntersectionObserver(([entry]) => {
+  if (entry.isIntersecting) {
+    if (campaignVideo.ended) campaignVideo.currentTime = 0;
+    campaignVideo.play().catch(() => {
+      campaignVideo.muted = true;
+      campaignVideo.play().catch(() => {});
+    });
+    return;
   }
-}, { once: true });
-campaignVideo.addEventListener('seeked', () => {
-  if (!campaignVideo.videoWidth || campaignVideo.currentTime < 5 || campaignVideo.dataset.previewReady) return;
-  const canvas = document.createElement('canvas');
-  canvas.width = campaignVideo.videoWidth;
-  canvas.height = campaignVideo.videoHeight;
-  canvas.getContext('2d').drawImage(campaignVideo, 0, 0, canvas.width, canvas.height);
-  videoPreview.src = canvas.toDataURL('image/jpeg', .86);
-  videoPreviewButton.classList.add('ready');
-  campaignVideo.dataset.previewReady = 'true';
-  campaignVideo.currentTime = 0;
-});
-videoPreviewButton.addEventListener('click', () => {
-  videoPreviewButton.classList.remove('ready');
-  campaignVideo.play().catch(() => {});
-});
-campaignVideo.addEventListener('play', () => videoPreviewButton.classList.remove('ready'));
+
+  campaignVideo.pause();
+}, { threshold: .12 });
+
+videoVisibilityObserver.observe(document.querySelector('#trajetoria'));
 
 const menuButton = document.querySelector('.menu-toggle');
 const navLinks = document.querySelector('#nav-links');
