@@ -273,7 +273,7 @@ async function downloadBallotImage() {
 document.querySelector('#download-ballot').addEventListener('click', downloadBallotImage);
 
 const videoShareDialog = document.querySelector('#video-share-dialog');
-const videoUrl = new URL('VIDEO/Thayane_mae_do_guivFULLHD3_legenda.mp4', location.href).href;
+const videoUrl = 'https://media.githubusercontent.com/media/dadosdcb-cpu/landing-page-campanha-tayane-mae-do-gui/main/VIDEO/Thayane_mae_do_guivFULLHD3_legenda.mp4';
 document.querySelector('#video-whatsapp').href = `https://wa.me/?text=${encodeURIComponent(`Assista ao vídeo de Tayane Mãe do Gui — Deputada Federal 4511: ${videoUrl}`)}`;
 document.querySelector('#share-video').addEventListener('click', () => {
   videoShareDialog.showModal();
