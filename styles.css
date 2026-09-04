@@ -153,7 +153,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .toast { position: fixed; z-index: 100; left: 50%; bottom: 30px; translate: -50% 25px; max-width: calc(100% - 32px); padding: 14px 22px; border-radius: 99px; color: #fff; background: var(--purple); box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: .25s ease; text-align: center; }
 .toast.show { opacity: 1; translate: -50% 0; }
 
-.reveal { opacity: 0; transform: translateY(24px); transition: opacity .75s ease, transform .75s ease; }
+.reveal,
 .reveal.visible { opacity: 1; transform: none; }
 
 @media (max-width: 900px) {
